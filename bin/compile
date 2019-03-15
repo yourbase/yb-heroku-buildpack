@@ -17,18 +17,38 @@ export_env_dir() {
   fi
 }
 
-export_env_dir(${ENV_DIR})
+export_env_dir ${ENV_DIR}
+export YB_CACHE_DIR="${CACHE_DIR}"
+export PATH="$PATH:$CACHE_DIR"
+
+WORKSPACE="workspace-$(date '+%s')"
+WORKSPACE="yb-workspace"
+WORKSPACE_DIR="${CACHE_DIR}/${WORKSPACE}"
+PACKAGE_DIR="package-$(date '+%s')"
 
 mkdir -p ${CACHE_DIR}
 cd $CACHE_DIR 
 curl https://s3-us-west-2.amazonaws.com/yourbase-artifacts/artificer -o yb
+chmod a+x ./yb
 
-export PATH="$PATH:$CACHE_DIR"
-yb workspace create --name workspace
-cd workspace
-ln -s ${BUILD_DIR} ./package
+if [ ! -d ${WORKSPACE} ]; then 
+  yb workspace create --name ${WORKSPACE}
+fi
+
+cd ${WORKSPACE_DIR}
+echo "PWD: ${PWD}"
+ln -fs ${BUILD_DIR} ./package
+
+ls -al 
+
 yb workspace target package
 yb build
+
+
+
+
+
+
 
 
 
